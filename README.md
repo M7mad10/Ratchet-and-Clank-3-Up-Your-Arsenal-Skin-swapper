@@ -21,3 +21,6 @@ To be completely transparent here, I have used Claude's Opus 5.5 in creating thi
 I gave it two RAM dumps from PCSX2 emulator, one with default skin and the other ram dump with the skin I want it trace back to original data on the disc.
 It was able to compare both ram dumps and Trace it to which sector the data is held on disc. I did this process with all games.
 Then it created the script and asked to also make the .bat file to simplify the process.
+
+Full conversation:
+https://claude.ai/share/775e435e-30c9-40b9-a77c-2aebcf69ab10
