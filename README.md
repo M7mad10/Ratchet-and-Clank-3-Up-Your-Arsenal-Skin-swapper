@@ -8,8 +8,8 @@ All you need are these ps2 games:
 - R&C Going commando SCUS-97268 (Optional)
 
 You can just drag and drop the the iso file onto the .bat file and it will open a simple command-line user interface.
-You you have multiple options. You can just press 1 then Enter to choose the first option which is going to replace all skins, or you could 
-choose a Custom option where can choose which skin replaces which. ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 )
+You have multiple options. You can just press 1 then Enter to choose the first option which is going to replace all skins, or you could 
+choose 8 a Custom option where can choose which skin replaces which. ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 )
 
 
 To be completely transparent here, I have used Claude's Opus 5.5 in creating this to the extent that would be considered vibecoded.
