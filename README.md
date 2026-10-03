@@ -17,7 +17,7 @@ You have multiple options. You can just press 1 then Enter to choose the first o
 choose 8 a Custom option where can choose which skin replaces which ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ).
 The Modified ISO should be in the same directory as the NA copy you have.
 
-Default Skin Overwrits if you choose option 1:
+Default Skin Overwrites if you choose option 1:
 - Sumo (JP) —> Snowman
 - Ninja (JP) —> Robo Rooster
 - Santa (JP) —> Trooper
