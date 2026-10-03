@@ -7,7 +7,12 @@ All you need are these ps2 games:
 - R&C 3 Japan SCPS-15084 (Optional)
 - R&C Going commando SCUS-97268 (Optional)
 
-You can just drag and drop the the iso file onto the .bat file and it will open a simple command-line user interface.
+You can just drag and drop the the iso files onto the .bat file and it will open a simple command-line user interface.
+Keep in mind that the .bat file only works on windows.
+
+For Mac or Linux users:
+You need to have PowerShell 7. Open the terminal in the folder and run:[ pwsh ./swap_skin.ps1 "directoru/to/na.iso" "directoru/to/jp.iso" "directoru/to/gc.iso" ] without squire brackets. You have to replace each file directory with the actual file directory you have on your machine.
+
 You have multiple options. You can just press 1 then Enter to choose the first option which is going to replace all skins, or you could 
 choose 8 a Custom option where can choose which skin replaces which ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ).
 The Modified ISO should be in the same directory as the NA copy you have.
