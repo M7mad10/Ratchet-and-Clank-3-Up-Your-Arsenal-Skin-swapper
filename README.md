@@ -17,6 +17,15 @@ You have multiple options. You can just press 1 then Enter to choose the first o
 choose 8 a Custom option where can choose which skin replaces which ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ).
 The Modified ISO should be in the same directory as the NA copy you have.
 
+Default Skin Overwrits if you choose option 1:
+- Sumo (JP) —> Snowman
+- Ninja (JP) —> Robo Rooster
+- Santa (JP) —> Trooper
+- Pipo-Saru (JP) —> Robo
+- Beach Boy (Going Commando) —> Buginoid
+- Clown (Going Commando) —> Brainius
+
+
 To be completely transparent here, I have used Claude's Opus 5.5 in creating this to the extent that would be considered vibecoded.
 I gave it two RAM dumps from PCSX2 emulator, one with default skin and the other ram dump with the skin I want it trace back to original data on the disc.
 It was able to compare both ram dumps and Trace it to which sector the data is held on disc. I did this process with all games.
