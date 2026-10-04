@@ -25,6 +25,8 @@ Default Skin Overwrites if you choose option 1:
 - Beach Boy (Going Commando) —> Buginoid
 - Clown (Going Commando) —> Brainius
 
+Inside the North American copy of UYA slots 14-28 (18-28 in japanese version) are Place holders, but they are not empty. They all contain an older version of Adamantine Armor.
+
 
 To be completely transparent here, I have used Claude's Opus 5.5 in creating this to the extent that would be considered vibecoded.
 I gave it two RAM dumps from PCSX2 emulator, one with default skin and the other ram dump with the skin I want it trace back to original data on the disc.
