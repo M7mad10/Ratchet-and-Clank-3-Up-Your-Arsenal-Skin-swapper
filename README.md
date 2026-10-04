@@ -11,7 +11,7 @@ You can just drag and drop the the iso files onto the .bat file and it will open
 Keep in mind that the .bat file only works on windows.
 
 For Mac or Linux users:
-You need to have PowerShell 7. Open the terminal in the folder and run:[ pwsh ./swap_skin.ps1 "directory/to/na.iso" "directory/to/jp.iso" "directory/to/gc.iso" ] without squire brackets. You have to replace each file directory with the actual file directory you have on your machine.
+You need to have PowerShell 7. Open the terminal in the folder and run:[pwsh ./swap_skin.ps1 "directory/to/na.iso" "directory/to/jp.iso" "directory/to/gc.iso"] without squire brackets. You have to replace each file directory with the actual file directory you have on your machine.
 
 You have multiple options. You can just press 1 then Enter to choose the first option which is going to replace all skins, or you could 
 choose 8 a Custom option where can choose which skin replaces which ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ).
