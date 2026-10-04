@@ -14,7 +14,7 @@ For Mac or Linux users:
 You need to have PowerShell 7. Open the terminal in the folder and run:[pwsh ./swap_skin.ps1 "directory/to/na.iso" "directory/to/jp.iso" "directory/to/gc.iso"] without squire brackets. You have to replace each file directory with the actual file directory you have on your machine.
 
 You have multiple options. You can just press 1 then Enter to choose the first option which is going to replace all skins, or you could 
-choose 8 a Custom option where can choose which skin replaces which ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ).
+choose 8 a Custom option where can choose which skin replaces which. ( SourceSlot>NaSlot, e.g.  JP17>13 GC7>8 ). in this example the Japanese UYA slot 17 will over-write the NA UYA slot 13 (JP17>13), and the skin from GC slot 7 will over-write slot 8 in NA UYA (GC7>8).
 The Modified ISO should be in the same directory as the NA copy you have.
 
 Default Skin Overwrites if you choose option 1:
