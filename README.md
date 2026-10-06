@@ -39,7 +39,7 @@ HOW TO USE
      window says why (wrong game, unsupported version, modified copy, file not found...).
      Everything is greyed out until NA UYA has a green check.
   3. Choose what you want (see below).
-  4. Press "Patch Rom". Progress is shown in the log window (copying takes 1-3 minutes).
+  4. Press "Patch Rom". Progress is shown in the log window.
   5. When it is done, a green "successful:" line shows where the new iso is.
      Click it to open that folder. If something is wrong, a red "failed:" line explains
      why (and which custom over-write row caused it), and no iso is left behind.
