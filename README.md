@@ -1,7 +1,7 @@
 # Ratchet-and-Clank-3-Up-Your-Arsenal-Skin-swapper
 This is a simple script that modifies the North American PS2 copy of UYA to have skins from the Japanese version, going commando and Multiplayer Mode.
 
-Skin Swapper 2.0 - Ratchet & Clank: Up Your Arsenal (PS2)
+Skin Swapper - Ratchet & Clank: Up Your Arsenal (PS2)
 =========================================================
 
 Replaces any of the 29 skin slots of the North American Up Your Arsenal with a skin
