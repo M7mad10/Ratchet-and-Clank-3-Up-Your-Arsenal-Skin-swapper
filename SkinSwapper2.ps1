@@ -1,5 +1,5 @@
 <#
-  SkinSwapper2.ps1  -  Skin Swapper 2.0 for Ratchet & Clank: Up Your Arsenal (PS2, North America)
+  SkinSwapper2.ps1  -  Skin Swapper 2.1 for Ratchet & Clank: Up Your Arsenal (PS2, North America)
   Start it with "Skin Swapper 2.bat" (the black console window is the log).
   Everything it needs is inside this folder. Your iso files are never changed; a NEW
   "... [modded].iso" is written next to the NA Up Your Arsenal iso.
@@ -9,6 +9,8 @@
      multiplayer skins (8 team colours) or MP Ratchet into any of the 29 skin slots
      (0-4 armors, 5-13 Skins menu, 14-28 extra Skins menu entries)
    - helmet override per slot, optional "unlock all unlockable skins"
+   - optional wrench replacement: OmniWrench 10000 or 8000 (the unused wrenches, ARMOR
+     entries 30 / 29) instead of the OmniWrench 12000 (entry 31; 34 is its copy)
   Multiplayer skins are converted to the single-player skeleton on this PC.
 #>
 param([string]$Headless)   # developer test: path to a .json settings file, patches without the window
@@ -127,6 +129,12 @@ $SOURCE_DISPLAY = @{
 # Disc space (sectors) of the converted multiplayer skins, MP Ratchet and the shared placeholder
 $MP_SIZES = @{ 35 = 62; 36 = 54; 37 = 32; 38 = 55; 39 = 50; 40 = 33; 41 = 40; 42 = 45; 43 = 49; 44 = 39; 45 = 47; 46 = 51; 47 = 50; 48 = 45; 49 = 39; 50 = 47; 51 = 36; 52 = 58; 53 = 46; 54 = 47; 55 = 46 }
 $MPR_SECTORS = 56; $PH_SECTORS = 107
+# Wrenches in the ARMOR table: entry 31 = the wrench the game uses, 34 = an identical copy
+# (both are changed, in case the game ever loads the copy); 29 / 30 = unused older wrenches.
+$WRENCH_TARGETS = @(31, 34)
+$WRENCH_ORDER = @(0, 30, 29)
+$WRENCH_NAMES = @{ 0 = 'OmniWrench 12000 (Current)'; 30 = 'OmniWrench 10000'; 29 = 'OmniWrench 8000' }
+$WRENCH_ORIG = @{ 29 = @(2888, 11, 2899, 9); 30 = @(2908, 15, 2923, 9); 31 = @(2932, 15, 2947, 9); 34 = @(3000, 15, 3015, 9) }
 
 $SECTOR   = 2048
 $TOC_LBA  = 1001
@@ -966,6 +974,8 @@ function Invoke-Patch($cfg) {
     $streams = @(); $outPath = $null; $made = $null
     try {
         $script:unlockAll = [bool]$cfg.UnlockAll
+        $wrench = [int]$cfg.Wrench
+        if ($wrench -ne 0 -and $wrench -ne 29 -and $wrench -ne 30) { throw "Unknown wrench choice: $wrench." }
         # ---- discs
         $discs = @{}
         foreach ($role in 'NA', 'JP', 'GC') {
@@ -983,6 +993,12 @@ function Invoke-Patch($cfg) {
         for ($s = 0; $s -lt $SLOTS; $s++) {
             $en = Get-Entry $armor.Table $s; $o = $NA_TABLE[$s]
             if ($en.MeshOfs -ne $o[0] -or $en.MeshSize -ne $o[1] -or $en.TexOfs -ne $o[2] -or $en.TexSize -ne $o[3]) { throw "NA UYA slot $s is not original. Use an unmodified NA UYA iso." }
+        }
+        if ($wrench) {
+            foreach ($ws in $WRENCH_ORIG.Keys) {
+                $en = Get-Entry $armor.Table $ws; $o = $WRENCH_ORIG[$ws]
+                if ($en.MeshOfs -ne $o[0] -or $en.MeshSize -ne $o[1] -or $en.TexOfs -ne $o[2] -or $en.TexSize -ne $o[3]) { throw "NA UYA wrench entry $ws is not original. Use an unmodified NA UYA iso." }
+            }
         }
         $menuRows = Parse-MenuRows; $helmRows = Parse-HelmetRows
         $ov = Get-Overlays $nfs
@@ -1076,6 +1092,7 @@ function Invoke-Patch($cfg) {
             Log ('  Slot {0,2}: {1}' -f $jb.Slot, $what) $(if ($isOriginal) { 'DarkGray' } else { 'Gray' })
         }
         Log ("  Disc space: {0} of {1} sectors. Skins menu: {2} entries. Unlock all: {3}." -f ($packedEnd - $DATA_START), ($DATA_END - $DATA_START), $count, $(if ($script:unlockAll) { 'yes' } else { 'no' }))
+        if ($wrench) { Log ("  Wrench: {0} (ARMOR entries 31 and 34 use entry {1})." -f $WRENCH_NAMES[$wrench], $wrench) }
 
         $plans = @()
         foreach ($id in $levelIds) {
@@ -1106,6 +1123,11 @@ function Invoke-Patch($cfg) {
                 Write-At $out ($armor.TocPos + 8 + 16 * $jb.Slot) $eb
                 Write-At $out ($wadPos + 8 + 16 * $jb.Slot) $eb
             }
+            if ($wrench) {
+                $we = New-Object byte[] 16
+                [Array]::Copy($armor.Table, 8 + 16 * $wrench, $we, 0, 16)
+                foreach ($wt in $WRENCH_TARGETS) { Write-At $out ($armor.TocPos + 8 + 16 * $wt) $we; Write-At $out ($wadPos + 8 + 16 * $wt) $we }
+            }
             foreach ($p in $plans) {
                 Write-At $out ($p.Lv.Pos + $p.Lv.RegionOfs) $p.Region
                 Write-At $out ($p.Lv.Pos + $p.Hv.DeadOfs) $p.Helmet
@@ -1116,7 +1138,11 @@ function Invoke-Patch($cfg) {
             $a2 = Get-Armor $out
             for ($s = 0; $s -lt ($HDR_UYA - 8) / 16; $s++) {
                 $en = Get-Entry $a2.Table $s
-                if ($s -lt $SLOTS) { $e = $jobs[$s].Entry } else { $o = Get-Entry $armor.Table $s; $e = @($o.MeshOfs, $o.MeshSize, $o.TexOfs, $o.TexSize) }
+                if ($s -lt $SLOTS) { $e = $jobs[$s].Entry }
+                else {
+                    $from = if ($wrench -and $WRENCH_TARGETS -contains $s) { $wrench } else { $s }
+                    $o = Get-Entry $armor.Table $from; $e = @($o.MeshOfs, $o.MeshSize, $o.TexOfs, $o.TexSize)
+                }
                 if ($en.MeshOfs -ne $e[0] -or $en.MeshSize -ne $e[1] -or $en.TexOfs -ne $e[2] -or $en.TexSize -ne $e[3]) { throw "Check failed: skin table entry $s." }
             }
             foreach ($jb in $jobs) {
@@ -1160,7 +1186,7 @@ if ($Headless) {
     foreach ($role in 'NA', 'JP', 'GC') { if ($c.$role) { $t = Test-Disc $c.$role $role; if ($t.Ok) { $script:discSizes[$role] = $t.Sizes } } }
     $keys = @(); for ($s = 0; $s -lt $SLOTS; $s++) { $k = $null; if ($slotCfg.ContainsKey($s)) { $k = $slotCfg[$s].Key }; if (-not $k) { $k = if ($s -ge $FIRST_SLOT) { 'NA14' } else { "NA$s" } }; $keys += $k }
     Log "  (window's disc space estimate: $(Get-SpaceUsed $keys))" 'DarkGray'
-    $res = Invoke-Patch @{ NA = $c.NA; JP = $c.JP; GC = $c.GC; UnlockAll = [bool]$c.UnlockAll; Slots = $slotCfg; OutIso = $c.OutIso }
+    $res = Invoke-Patch @{ NA = $c.NA; JP = $c.JP; GC = $c.GC; UnlockAll = [bool]$c.UnlockAll; Wrench = [int]$c.Wrench; Slots = $slotCfg; OutIso = $c.OutIso }
     if ($res.Ok) { Log "successful: $($res.Out)" 'Green'; exit 0 } else { Log "failed: $($res.Error)" 'Red'; exit 1 }
 }
 
@@ -1185,13 +1211,14 @@ $C_BLUE   = [System.Drawing.Color]::FromArgb(40, 120, 215)
 $F_TEXT   = New-Object System.Drawing.Font('Segoe UI', 10)
 $F_SMALL  = New-Object System.Drawing.Font('Segoe UI', 9)
 $F_TITLE  = New-Object System.Drawing.Font('Segoe UI', 14, [System.Drawing.FontStyle]::Bold)
+$F_SUB    = New-Object System.Drawing.Font('Segoe UI', 11, [System.Drawing.FontStyle]::Bold)
 $F_BIG    = New-Object System.Drawing.Font('Segoe UI', 14, [System.Drawing.FontStyle]::Bold)
 $F_MARK   = New-Object System.Drawing.Font('Segoe UI Symbol', 14, [System.Drawing.FontStyle]::Bold)
 $CHECK = [string][char]0x2714; $CROSS = [string][char]0x2716; $BULLET = [string][char]0x2022
 
 $UIW = 1160
 $form = New-Object System.Windows.Forms.Form
-$form.Text = 'Skin Swapper 2.0'
+$form.Text = 'Skin Swapper 2.1'
 $form.BackColor = $C_BG; $form.ForeColor = $C_TEXT; $form.Font = $F_TEXT
 $form.StartPosition = 'CenterScreen'
 $scrH = [System.Windows.Forms.Screen]::PrimaryScreen.WorkingArea.Height
@@ -1257,6 +1284,14 @@ $noteLines = @()
 foreach ($n in @('Color options are only available for Multiplayer skins (MP).',
                  'Slots from 14-28 will be added to the skins menu only if they are Over-written.',
                  'Helmet Overrides allows you to add or remove the helmet from skin slots.')) { $noteLines += (New-Label "$BULLET  $n") }
+# ---- wrench option (V2.1) ----
+$chkWrench = New-Check 'Replace wrench?'
+$cbWrench = New-Combo 250
+foreach ($wk in $WRENCH_ORDER) { [void]$cbWrench.Items.Add($WRENCH_NAMES[$wk]) }
+$cbWrench.SelectedIndex = 0
+# ---- slot section sub-titles (V2.1) ----
+$lblArmorSlots = New-Label 'In-game Armor slots' $F_SUB
+$lblMenuSlots = New-Label 'Skin menu Slots' $F_SUB
 $KEEP = '(keep original)'
 $HELMET_ITEMS = @('No helmet', 'Orange (Alpha)', 'Blue (Magnaplate)', 'Red (Adamantine)', 'Green (Aegis)')
 $COLOUR_ITEMS = @('Blue', 'Red', 'Green', 'Orange', 'Yellow', 'Purple', 'Aqua', 'Pink')
@@ -1312,7 +1347,10 @@ function Relayout {
     Place $lblNotes 20 $y; $y += 24
     foreach ($n in $noteLines) { Place $n 34 $y; $y += 22 }
     $y += 16
+    Place $chkWrench 20 ($y + 3); Place $cbWrench 170 $y; $y += 44
+    Place $lblArmorSlots 20 $y; $y += 30
     foreach ($r in $script:rows) {
+        if ($r.Slot -eq 5) { $y += 14; Place $lblMenuSlots 20 $y; $y += 30 }
         Place $r.Num 16 ($y + 5); Place $r.Name 48 ($y + $(if ($r.Slot -ge $FIRST_SLOT) { 6 } else { 4 }))
         Place $r.Arrow 360 ($y + 4)
         Place $r.Src 520 $y; Place $r.Col 780 $y; Place $r.HChk 884 ($y + 3); Place $r.HCb 1010 $y
@@ -1393,10 +1431,17 @@ function Update-Space {
     $lblSpaceVal.ForeColor = if ($script:spaceOk) { $C_TEXT } else { $C_RED }
     $btnPatch.Enabled = $script:disc['NA'].Ok -and $script:spaceOk
 }
+function Update-Wrench {
+    $on = $chkWrench.Checked -and $script:disc['NA'].Ok
+    $cbWrench.Enabled = $on
+    $cbWrench.BackColor = if ($on) { $C_CTRL } else { $C_FADED }
+}
 function Update-State {
     $naOk = $script:disc['NA'].Ok
     $chkUnlock.Enabled = $naOk
-    foreach ($c in @($lblUnlockDesc, $lblTitle, $lblNotes, $lblSpace) + $noteLines) { $c.ForeColor = if ($naOk) { $C_TEXT } else { $C_DIM } }
+    $chkWrench.Enabled = $naOk
+    Update-Wrench
+    foreach ($c in @($lblUnlockDesc, $lblTitle, $lblNotes, $lblSpace, $lblArmorSlots, $lblMenuSlots) + $noteLines) { $c.ForeColor = if ($naOk) { $C_TEXT } else { $C_DIM } }
     foreach ($r in $script:rows) {
         $r.Src.Enabled = $naOk; $r.HChk.Enabled = $naOk; $r.HCb.Enabled = $naOk
         foreach ($c in @($r.Num, $r.Name, $r.Arrow)) { $c.ForeColor = if ($naOk) { $C_TEXT } else { $C_DIM } }
@@ -1461,10 +1506,11 @@ $btnPatch.Add_Click({
         JP = if ($script:disc['JP'].Ok) { $script:disc['JP'].Box.Text } else { '' }
         GC = if ($script:disc['GC'].Ok) { $script:disc['GC'].Box.Text } else { '' }
         UnlockAll = $chkUnlock.Checked; Slots = $slotCfg
+        Wrench = $(if ($chkWrench.Checked) { $WRENCH_ORDER[$cbWrench.SelectedIndex] } else { 0 })
     }
     Log ''
     Log '=== Patching ===' 'Cyan'
-    Log ("  Unlock all Unlockable skins: {0}   over-written slots: {1}" -f $cfg.UnlockAll, $changed)
+    Log ("  Unlock all Unlockable skins: {0}   over-written slots: {1}   wrench: {2}" -f $cfg.UnlockAll, $changed, $WRENCH_NAMES[[int]$cfg.Wrench])
     $panel.Enabled = $false; $form.Cursor = 'WaitCursor'; $script:busy = $true
     try { $res = Invoke-Patch $cfg }
     finally { $panel.Enabled = $true; $form.Cursor = 'Default'; $script:busy = $false }
@@ -1478,11 +1524,12 @@ $btnPatch.Add_Click({
     }
 })
 
+$chkWrench.Add_CheckedChanged({ Update-Wrench })
 $script:busy = $false
 $form.Add_FormClosing({ param($sender, $e) if ($script:busy) { $e.Cancel = $true; Log 'Please wait until patching has finished.' 'Yellow' } })
 
 # ======================= start =======================
-Log 'Skin Swapper 2.0 - log window' 'Cyan'
+Log 'Skin Swapper 2.1 - log window' 'Cyan'
 Log 'Select your iso files in the Skin Swapper window. Everything that happens is shown here.'
 Log ''
 Update-State
