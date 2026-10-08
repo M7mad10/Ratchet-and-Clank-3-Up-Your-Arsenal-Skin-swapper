@@ -1,13 +1,13 @@
 # Ratchet-and-Clank-3-Up-Your-Arsenal-Skin-swapper
 This is a simple script that modifies the North American PS2 copy of UYA to have skins from the Japanese version, going commando and Multiplayer Mode.
 
-Skin Swapper - Ratchet & Clank: Up Your Arsenal (PS2)
+Skin Swapper 2.1 - Ratchet & Clank: Up Your Arsenal (PS2)
 =========================================================
 
 Replaces any of the 29 skin slots of the North American Up Your Arsenal with a skin
 from the NA disc, the Japanese UYA disc, Going Commando or the UYA multiplayer
 characters (in 8 team colours), adds up to 15 new entries to the SKINS menu, and can
-change the helmet of any slot.
+change the helmet of any slot. It can also give Ratchet one of the two unused wrenches.
 It writes a NEW iso; your original iso files are never changed.
 
 
@@ -24,7 +24,7 @@ WHAT YOU NEED
 FILES
   Skin Swapper 2.bat   Double-click this to start.
   SkinSwapper2.ps1     The tool itself (the .bat runs it).
-  README.txt           This file.
+  README 2.txt         This file.
   Keep the .bat and the .ps1 in the same folder. Nothing outside this folder is used;
   the folder can be moved or copied anywhere.
 
@@ -55,8 +55,18 @@ OPTIONS
          "Old School Ratchet" and "Constructobot".
     New menu entries (slots 14-28) are always unlocked, with or without this option.
 
+  Replace wrench?
+    Tick it to choose Ratchet's wrench in the box to its right (the box is faded
+    until it is ticked):
+       OmniWrench 12000 (Current)   the normal Up Your Arsenal wrench (no change)
+       OmniWrench 10000             unused wrench left on the disc (skin file slot 30)
+       OmniWrench 8000              unused wrench left on the disc (skin file slot 29)
+    It only changes how the wrench looks, and uses no disc space. (The game's wrench
+    is skin file slot 31; its identical copy, slot 34, is changed too.)
+
   Skin slots Custom-Overwrites
-    One row per skin slot of the game (0-28). In each row, choose the skin that should
+    One row per skin slot of the game (0-28), in two groups:
+    "In-game Armor slots" (0-4) and "Skin menu Slots" (5-28). In each row, choose the skin that should
     over-write that slot in the box to the right of the arrow:
        - "(keep original)" leaves the slot as it is.
        - The list only shows skins from the discs that have a green check, in the
